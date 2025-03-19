@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Câu hỏi vui</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        /* Styles for the modal */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgb(0,0,0); /* Fallback color */
+            background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto; /* 15% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%; /* Could be more or less, depending on screen size */
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div id="question-container">
+    <h2 id="question"></h2>
+    <div id="options"></div>
+</div>
+
+<!-- The Modal -->
+<div id="myModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2 id="follow-up-question"></h2>
+        <div id="follow-up-options"></div>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        {
+            question: "Grass is green. Sky is blue. You are:",
+            options: ["black", "yellow", "red"],
+            correct: "yellow"
+        },
+        {
+            question: "I gave you 10 bucks. You should give back to me:",
+            options: ["10k", "10", "100"],
+            correct: "10k"
+        },
+        {
+            question: "Am I the most beautiful flower in the world?",
+            options: ["Yes", "No"],
+            correct: "Yes",
+            disableNo: true
+        }
+    ];
+
+    const followUpQuestions = [
+        {
+            question: "Đăng già anh có muốn tiếp tục không?",
+            options: ["Yes", "No"]
+        },
+        {
+            question: "Thế nào người đẹp?",
+            options: ["Yes", "No"]
+        },
+        {
+            question: "Chịu thua chưa?",
+            options: ["Yes", "No"]
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let currentFollowUpIndex = 0; // Track the current follow-up question index
+
+    function showQuestion() {
+        const question = questions[currentQuestionIndex];
+        document.getElementById("question").innerText = question.question;
+        const optionsDiv = document.getElementById("options");
+        optionsDiv.innerHTML = '';
+
+        question.options.forEach(option => {
+            const button = document.createElement("button");
+            button.innerText = option;
+            button.onclick = () => handleAnswer(option);
+            if (question.disableNo && option === "No") {
+                button.disabled = true;
+            }
+            optionsDiv.appendChild(button);
+        });
+    }
+
+    function handleAnswer(answer) {
+        const question = questions[currentQuestionIndex];
+        if (answer === question.correct) {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                showQuestion();
+            } else {
+                // Reset follow-up index and show the first follow-up question
+                currentFollowUpIndex = 0;
+                showFollowUpQuestion(currentFollowUpIndex);
+            }
+        } else {
+            alert("Ahihi đồ ngốc chơi lại đi");
+            currentQuestionIndex = 0;
+            showQuestion();
+        }
+    }
+
+    function showFollowUpQuestion(index) {
+        if (index < followUpQuestions.length) {
+            const followUp = followUpQuestions[index];
+            document.getElementById("follow-up-question").innerText = followUp.question;
+            const followUpOptionsDiv = document.getElementById("follow-up-options");
+            followUpOptionsDiv.innerHTML = '';
+
+            followUp.options.forEach(option => {
+                const button = document.createElement("button");
+                button.innerText = option;
+                button.onclick = () => handleFollowUpAnswer(option, index);
+                followUpOptionsDiv.appendChild(button);
+            });
+
+            // Show the modal
+            document.getElementById("myModal").style.display = "block";
+        } else {
+            showFinalQuestion();
+        }
+    }
+
+    function handleFollowUpAnswer(answer, index) {
+        if (answer === "Yes") {
+            currentFollowUpIndex++;
+            closeModal(); // Close the modal before showing the next question
+            showFollowUpQuestion(currentFollowUpIndex); // Show the next follow-up question
+        } else {
+            alert("Ahihi đồ ngốc chơi lại đi");
+            closeModal();
+        }
+    }
+
+    function showFinalQuestion() {
+        document.getElementById("question").innerText = "Em có đẹp không?";
+        const optionsDiv = document.getElementById("options");
+        optionsDiv.innerHTML = '';
+
+        const yesButton = document.createElement("button");
+        yesButton.innerText = "Yes";
+        yesButton.onclick = () => {
+            document.body.innerHTML = "<h1>🌸 Ahihi</h1>";
+        };
+        optionsDiv.appendChild(yesButton);
+
+        const noButton = document.createElement("button");
+        noButton.innerText = "No";
+        noButton.disabled = true; // Disable No
